@@ -1,0 +1,81 @@
+paths:
+  /users:
+    post:
+      summary: Register a new user
+      tags: [users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#components/schemas/User"
+      responses:
+        201:
+          description: The registered user
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  user:
+                    $ref: "#components/schemas/UserCreatedResponse"
+        400:
+          description: It occurs when a user constraint is not respected
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/UserCreationFailResponse"
+  /users/login:
+    post:
+      summary: Authenticate a user
+      tags: [users]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#components/schemas/LoginCredentials"
+      responses:
+        200:
+          description: User sucessfuly authenticated. Access token is valid for 1 hour.
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/LoginSucessResponse"
+        401:
+          description: User not authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/LoginFailResponse"
+  /users/{email}:
+    delete:
+      summary: Delete a user by e-mail
+      tags: [users]
+      parameters:
+        - in: path
+          name: email
+          schema:
+            type: string
+          required: true
+          description: The user's e-mail
+          example: sidney@email.com
+      responses:
+        200:
+          description: User sucessfuly deleted
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/UserDeletedResponse"
+        404:
+          description: No user found for the received e-mail
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/NoUserFoundResponse"
+        400:
+          description: The given e-mail is invalid
+          content:
+            application/json:
+              schema:
+                $ref: "#components/schemas/InvalidUserEmailResponse"
