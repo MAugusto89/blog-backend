@@ -33,6 +33,6 @@
       "start": "npx kill-port 3000 && ts-node src/server.ts",
       "dev": "npx kill-port 3000 && nodemon --exec ts-node src/server.ts",
       "typeorm": "typeorm-ts-node-commonjs",
-      "test": "npx cypress open"
+      "test": "npx cypress run"
    }
 }
