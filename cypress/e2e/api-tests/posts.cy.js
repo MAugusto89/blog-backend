@@ -182,6 +182,55 @@ describe("Testando API de postagens do blog", function () {
           })
     });
 
+    it("Verify if it can't remove a post without authorization", () => {
+        const invalidId = "1"
+        const deletePostEndPoint = `${apiPosts}/${invalidId}`;
+
+        cy.request({method: "DELETE", url: deletePostEndPoint, failOnStatusCode: false}).then((response) => {
+            expect(response.status).to.eq(401);
+
+            expect(response.headers['content-type']).to.include('application/json');
+
+            expect(response.body).to.have.property('message', 'User not authorized');
+        })
+    });
+
+    it('Verify if it can remove a post', () => {
+        const deletePostEndPoint = `${apiPosts}/${postId}`;
+
+        cy.request({method: "DELETE", url: deletePostEndPoint, headers:{Authorization: `Bearer ${Cypress.env('authToken')}`}}).then((response) => {
+            expect(response.status).to.be.oneOf([200, 204]);
+            expect(response.headers['content-type']).to.include('application/json'); 
+            
+            expect(response.body).to.have.property('message', 'Post deleted');
+        })
+    });
+
+    it("Verify if it can't remove a post by giving it a invalid id", () => {
+        const invalidId = "aaa"
+        const deletePostEndPoint = `${apiPosts}/${invalidId}`;
+
+        cy.request({method: "DELETE", url: deletePostEndPoint, failOnStatusCode: false, headers:{Authorization: `Bearer ${Cypress.env('authToken')}`}}).then((response) => {
+            expect(response.status).to.eq(400);
+            
+            expect(response.body).to.have.property('message', 'Invalid id');
+        })
+    });
+
+    it("Verify if it can't remove a post that was not found", () => {
+        const invalidId = "1"
+        const deletePostEndPoint = `${apiPosts}/${invalidId}`;
+
+        cy.request({method: "DELETE", url: deletePostEndPoint, failOnStatusCode: false}).then((response) => {
+            expect(response.status).to.eq(401);
+
+            expect(response.headers['content-type']).to.include('application/json');
+
+            expect(response.body).to.have.property('message', 'User not authorized');
+        })
+    });
+
+    
 
    after(() => {
 
@@ -194,3 +243,4 @@ describe("Testando API de postagens do blog", function () {
         });
     });
 })
+
