@@ -8,6 +8,7 @@ let userCredentials = {
     password: "Ma1234567@"
 }
 let postId;
+let postIds = [];
 
 describe("Testando API de postagens do blog", function () {
    before(() => {
@@ -16,6 +17,7 @@ describe("Testando API de postagens do blog", function () {
             expect(response.status).to.eq(201);
             expect(response.body.user).to.have.property('id');
             postId = response.body.user.id;
+            postIds.push(response.body.user.id)
             expect(response.body.user.name).to.eq(userCredentials.name);
 
             return cy.request("POST", loginEndPoint, userCredentials);
@@ -37,7 +39,7 @@ describe("Testando API de postagens do blog", function () {
    it('Verify if it can register a new post', () => {
         cy.request({method: "POST", url: apiPosts, body: newPost, headers:{Authorization: `Bearer ${Cypress.env('authToken')}`}, failOnStatusCode: false}).then((response) => {
             expect(response.headers['content-type']).to.include('application/json');
-
+            
             expect(response.body).to.have.property('post').that.is.an('object');
             expect(response.body.post).to.have.property('id').that.is.a('number');
           })
@@ -157,6 +159,26 @@ describe("Testando API de postagens do blog", function () {
             expect(response.headers['content-type']).to.include('application/json');
 
             expect(response.body).to.have.property('message', "Invalid id") 
+          })
+    });
+
+    it("Verify if it can retrieve all posts by it's giving id", () => {
+        
+        const userPosts = `${apiPosts}/user/${postId}`
+        cy.request({method: "GET", url: userPosts, failOnStatusCode: false}).then((response) => {
+
+            expect(response.status).to.eq(200);
+
+            expect(response.headers['content-type']).to.include('application/json');
+            expect(response.body).to.have.property('posts').that.is.an('array');
+
+
+            response.body.posts.forEach(post => {
+                expect(post).to.have.all.keys('id', 'title', 'content');
+                expect(post.id).to.be.oneOf(postIds);
+                expect(post.title).to.be.a('string').and.not.be.empty;
+                expect(post.content).to.be.a('string').and.not.be.empty;
+            });
           })
     });
 
